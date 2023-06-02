@@ -2,6 +2,7 @@ import "./App.css";
 import { useState, useEffect } from "react";
 import detectEthereumProvider from "@metamask/detect-provider";
 import * as sigUtil from "@metamask/eth-sig-util";
+import { Tooltip as ReactTooltip } from 'react-tooltip'
 
 const App = () => {
   const [hasProvider, setHasProvider] = useState<boolean | null>(null);
@@ -14,6 +15,8 @@ const App = () => {
   const [encryptedData, setEncryptedData] = useState<string>("");
   const [decryptedData, setDecryptedData] = useState<string>("");
   const [errorMessage, setErrorMessage] = useState<string>('');
+
+
 
 
   useEffect(() => {
@@ -107,26 +110,49 @@ const App = () => {
         <h2>Metamask Encryption App</h2>
       </header>
 
-      {window.ethereum?.isMetaMask &&
-        wallet.accounts.length < 1 /* Updated */ && (
-          <button className="btn-connect" onClick={handleConnect}>
-            Connect MetaMask
-          </button>
-        )}
+      {window.ethereum ? (
+          window.ethereum.isMetaMask && wallet.accounts.length < 1 ? (
+              <button className="btn-connect" onClick={handleConnect}>
+                Connect MetaMask
+              </button>
+          ) : (
+              <div></div>
+          )
+      ) : (
+          <div className="alert-box">
+            Please <a href="https://metamask.io/download.html" target="_blank" rel="noreferrer">install MetaMask</a>
+          </div>
+      )}
+
 
       {wallet.accounts.length > 0 && (
         <div className="account-details">
           <h3>Account Details</h3>
           <p>Wallet Accounts: {wallet.accounts[0]}</p>
-          <p>Encryption Public Key: <input
-              className="input-data"
-              type="text"
-              value={encryptionPublicKey?encryptionPublicKey:""}
-              onInput={(e) => setEncryptionPublicKey(e.currentTarget.value)}
-          /></p>
+          <ReactTooltip id="encryption-public-key-tip" place="top">
+            <div>
+              <p>The public encryption key is used by others to encrypt messages for you.</p>
+              <p>You paste your friends public encryption key here to encrypt messages for them.</p>
+              <p>Click the 'Get Public Encryption Key' button to get your public encryption key.</p>
+              <p>Pass your `public encryption key` around so your friends can encrypt messages</p>
+              <p>Which only you can decrypt.</p>
+            </div>
+          </ReactTooltip>
+          <p>
+            Encryption Public Key:
+            <a data-tooltip-id="encryption-public-key-tip">❓
+            </a>
+            <input
+                className="input-data"
+                type="text"
+                value={encryptionPublicKey || ""}
+                onInput={(e) => setEncryptionPublicKey(e.currentTarget.value)}
+            />
+          </p>
           <button className="btn-action" onClick={HandleGetEncryptionPublicKey}>
-            Get encryption public key
+            Get Public Encryption Key
           </button>
+
           <input
             className="input-data"
             type="text"
@@ -136,21 +162,31 @@ const App = () => {
           <button className="btn-action" onClick={EncryptRawData}>
             Encrypt
           </button>
+          <ReactTooltip id="encryptionDataTip" place="top">
+            <div>
+              <p>Paste the encrypted data below to decrypt using the selected wallet.</p>
+              <p>Unless you encrypted data, then copy the contents below and share with your friend</p>
+            </div>
+          </ReactTooltip>
+          <p>
+            Encrypted Data:
+            <a data-tooltip-id="encryptionDataTip">❓</a>
+          </p>
           <div>
-            <pre>
-              {JSON.stringify(JSON.parse(encryptedData || "{}"), null, 2)}
-            </pre>
             <textarea
                 rows={4}
                 cols={50}
                 value={encryptedData}
                 onChange={(e) => setEncryptedData(e.target.value)}>
-
             </textarea>
+            <pre>
+              {JSON.stringify(JSON.parse(encryptedData || "{}"), null, 2)}
+            </pre>
+
+            <button className="btn-action" onClick={decryptData}>
+              Decrypt Encrypted Data
+            </button>
           </div>
-          <button className="btn-action" onClick={decryptData}>
-            Decrypt Encrypted Data
-          </button>
           <div>
             <pre>
               {decryptedData}
