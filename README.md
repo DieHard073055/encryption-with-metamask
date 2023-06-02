@@ -22,7 +22,7 @@ It's as easy as pie:
 
 ## 🔧 Setup
 
-Wanna run this bad boy locally? Just clone this repo, run `npm install` and then `npm start`. That's it. 🍻
+Wanna run this bad boy locally? Just clone this repo, run `npm install` and then `npm run dev`. That's it. 🍻
 
 ## 🚀 Contribute
 
